@@ -1,0 +1,8 @@
+# Core dependencies for the Rich I/O System
+
+# For ClaudeOutputBlock (LLM integration)
+anthropic>=0.68.0
+python-dotenv>=1.0.0
+
+# For WebSocketTextInputProvider (WebSocket integration)
+websocket-client>=1.0.0
