@@ -38,4 +38,5 @@ __all__ = [
     'WebSocketTextInputProvider',
     'IdentityOutputBlock',
     'ClaudeOutputBlock',
+    'AgenticClaudeOutputBlock',
 ]

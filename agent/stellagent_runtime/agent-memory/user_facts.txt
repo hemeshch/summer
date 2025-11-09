@@ -1,0 +1,4 @@
+User's name is Michel
+User is working on "Stella" project, project at path "/Users/michel/Desktop/stella"
+Michel's friend's email is dc118@rice.edu
+ChatGPT's email address is chatgpt@rice.edu

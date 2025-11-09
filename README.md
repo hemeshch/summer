@@ -56,7 +56,8 @@ Messages sent to the WebSocket channel will be processed by Claude and forwarded
 
 **Output Blocks** - Process inputs and produce outputs
 - `IdentityOutputBlock` - Pass through (identity function)
-- `ClaudeOutputBlock` - Process with Claude AI
+- `ClaudeOutputBlock` - Process with Claude AI (with persistent context support)
+- `AgenticClaudeOutputBlock` - Process with Claude AI and tool support (see `AGENTIC_README.md`)
 
 **Outputs** - Messages produced by the system
 - `TextMessageOutput` - Text messages
@@ -97,6 +98,46 @@ Edit in `main.py`:
 - `model`: Default is `claude-sonnet-4-5`
 - `max_tokens`: Default is 1024
 - `system_prompt`: Customize Claude's behavior
+- `persistent_context`: Maintain conversation history (default: `True`)
+
+#### Persistent Context
+
+`ClaudeOutputBlock` now supports persistent context, which maintains conversation history across multiple messages:
+
+```python
+# With persistent context (default) - Claude remembers previous messages
+claude_block = ClaudeOutputBlock(
+    system_prompt="You are Stella",
+    persistent_context=True
+)
+
+# Without persistent context - each message is independent
+claude_block = ClaudeOutputBlock(
+    system_prompt="You are Stella",
+    persistent_context=False
+)
+
+# Clear history at any time
+claude_block.clear_history()
+
+# Check history length
+print(f"Messages in history: {claude_block.get_history_length()}")
+```
+
+**When to use persistent context:**
+- ✅ Multi-turn conversations where context matters
+- ✅ Follow-up questions that reference previous messages
+- ✅ Building a conversational assistant
+
+**When to disable persistent context:**
+- ❌ One-off queries that don't need history
+- ❌ To reduce token usage
+- ❌ When you want each message processed independently
+
+**Test persistent context:**
+```bash
+python test_persistent_context.py
+```
 
 ### iMessage Settings
 

@@ -22,6 +22,9 @@ class ClaudeOutputBlock(OutputBlock):
 
     Takes TextMessageInput, sends it to Claude API, and outputs the response
     as TextMessageOutput.
+
+    Supports persistent context (conversation history) to maintain continuity
+    across multiple messages.
     """
 
     def __init__(
@@ -30,7 +33,8 @@ class ClaudeOutputBlock(OutputBlock):
         system_prompt: Optional[str] = None,
         model: str = "claude-sonnet-4-5",
         max_tokens: int = 1024,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = None,
+        persistent_context: bool = True
     ):
         """
         Initialize Claude output block.
@@ -41,6 +45,7 @@ class ClaudeOutputBlock(OutputBlock):
             model: Claude model to use (default: claude-sonnet-4-5)
             max_tokens: Maximum tokens in response (default: 1024)
             api_key: Anthropic API key (defaults to ANTHROPIC_API_KEY env var)
+            persistent_context: If True, maintain conversation history across messages (default: True)
         """
         super().__init__(output_handler)
 
@@ -57,8 +62,13 @@ class ClaudeOutputBlock(OutputBlock):
         self.model = model
         self.max_tokens = max_tokens
         self.system_prompt = system_prompt or "You are a helpful AI assistant."
+        self.persistent_context = persistent_context
 
-        print(f"[ClaudeOutputBlock] Initialized with model: {self.model}")
+        # Conversation history for persistent context
+        self.conversation_history = []
+
+        context_status = "enabled" if persistent_context else "disabled"
+        print(f"[ClaudeOutputBlock] Initialized with model: {self.model}, persistent context: {context_status}")
 
     def process_input(self, input_obj: Input):
         """Process input and produce Claude's response as output"""
@@ -71,18 +81,35 @@ class ClaudeOutputBlock(OutputBlock):
         try:
             print(f"[ClaudeOutputBlock] Sending to Claude: {user_message}")
 
+            # Build messages list
+            if self.persistent_context:
+                # Add new user message to history
+                self.conversation_history.append({
+                    "role": "user",
+                    "content": user_message
+                })
+                messages = self.conversation_history
+            else:
+                # One-shot message without history
+                messages = [{"role": "user", "content": user_message}]
+
             # Call Claude API
             message = self.client.messages.create(
                 model=self.model,
                 max_tokens=self.max_tokens,
                 system=self.system_prompt,
-                messages=[
-                    {"role": "user", "content": user_message}
-                ]
+                messages=messages
             )
 
             # Extract response text
             response_text = message.content[0].text
+
+            # Add assistant response to history if persistent context is enabled
+            if self.persistent_context:
+                self.conversation_history.append({
+                    "role": "assistant",
+                    "content": response_text
+                })
 
             # Emit output
             output = TextMessageOutput(response_text)
@@ -97,3 +124,16 @@ class ClaudeOutputBlock(OutputBlock):
             error_msg = f"Unexpected error: {e}"
             print(f"[ClaudeOutputBlock] {error_msg}")
             self.emit_output(TextMessageOutput(f"Error: {error_msg}"))
+
+    def clear_history(self):
+        """Clear the conversation history."""
+        self.conversation_history = []
+        print("[ClaudeOutputBlock] Conversation history cleared")
+
+    def get_history_length(self) -> int:
+        """Get the number of messages in conversation history."""
+        return len(self.conversation_history)
+
+    def get_history(self) -> list:
+        """Get a copy of the conversation history."""
+        return self.conversation_history.copy()

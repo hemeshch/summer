@@ -34,11 +34,13 @@ def main():
     imessage_handler = create_imessage_handler()
 
     # Create Claude output block with iMessage handler
+    # persistent_context=True maintains conversation history across messages
     claude_block = ClaudeOutputBlock(
         output_handler=imessage_handler,
         system_prompt="You are Stella, a helpful AI assistant. Keep responses concise and friendly.",
         model="claude-sonnet-4-5",
-        max_tokens=1024
+        max_tokens=1024,
+        persistent_context=True  # Maintains conversation history
     )
 
     # Connect WebSocket to Claude (which outputs to iMessage)
