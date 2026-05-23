@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Channel API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f8f9fa;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: white;
+            border-left: 3px solid #007bff;
+            word-break: break-word;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .text-input {
+            height: 60px;
+            font-family: monospace;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Channel API Test</h1>
+
+    <div class="container">
+        <!-- Configuration Panel -->
+        <div class="panel full-width">
+            <h3>0. Configuration</h3>
+            <label for="apiUrlInput"><strong>API URL:</strong></label>
+            <input
+                type="text"
+                id="apiUrlInput"
+                placeholder="https://your-worker.workers.dev"
+                value="https://your-worker.workers.dev"
+            />
+            <small style="color: #666;">Enter your Cloudflare Worker URL (or use localhost:8787 for local testing)</small>
+        </div>
+
+        <!-- Channel Creation Panel -->
+        <div class="panel full-width">
+            <h3>1. Create or Join Channel</h3>
+            <input
+                type="text"
+                id="channelId"
+                placeholder="Enter channel ID (leave empty for auto-generated)"
+            />
+            <button onclick="createChannel()">Create/Join Channel</button>
+
+            <div id="channelInfo" class="info-box" style="display: none;">
+                <strong>Channel ID:</strong> <code id="currentChannelId"></code><br>
+                <strong>WebSocket URL:</strong> <code id="wsUrl"></code><br>
+                <strong>Broadcast URL:</strong> <code id="broadcastUrl"></code>
+            </div>
+        </div>
+
+        <!-- WebSocket Connection Panel -->
+        <div class="panel">
+            <h3>2. WebSocket Connection</h3>
+            <div id="connectionStatus" class="status disconnected">Not Connected</div>
+            <button id="connectBtn" onclick="connectWebSocket()" disabled>Connect to Channel</button>
+            <button id="disconnectBtn" onclick="disconnectWebSocket()" disabled>Disconnect</button>
+
+            <h4>Send Message via WebSocket:</h4>
+            <textarea id="wsMessage" class="text-input" placeholder="Type a message to broadcast...">Hello from WebSocket!</textarea>
+            <button id="sendWsBtn" onclick="sendViaWebSocket()" disabled>Send via WebSocket</button>
+        </div>
+
+        <!-- HTTP Broadcast Panel -->
+        <div class="panel">
+            <h3>3. HTTP Broadcast</h3>
+            <p style="font-size: 14px; color: #666;">Send messages via HTTP POST to broadcast to all WebSocket subscribers.</p>
+
+            <h4>Send Message via HTTP:</h4>
+            <textarea id="httpMessage" class="text-input" placeholder="Type a message to broadcast...">Hello from HTTP!</textarea>
+            <button id="sendHttpBtn" onclick="sendViaHTTP()" disabled>Send via HTTP POST</button>
+
+            <h4>Quick Actions:</h4>
+            <button id="sendJsonBtn" onclick="sendJSON()" disabled>Send JSON Message</button>
+        </div>
+
+        <!-- Messages Panel -->
+        <div class="panel full-width">
+            <h3>Received Messages</h3>
+            <div id="messages" class="messages"></div>
+            <button onclick="clearMessages()">Clear Messages</button>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentChannelId = null;
+        let wsUrl = null;
+        let broadcastUrl = null;
+
+        function getApiUrl() {
+            const input = document.getElementById('apiUrlInput').value.trim();
+            return input || 'https://your-worker.workers.dev';
+        }
+
+        async function createChannel() {
+            const apiUrl = getApiUrl();
+            const channelIdInput = document.getElementById('channelId').value.trim();
+            const url = channelIdInput
+                ? `${apiUrl}/create_channel?id=${encodeURIComponent(channelIdInput)}`
+                : `${apiUrl}/create_channel`;
+
+            try {
+                const response = await fetch(url, { method: 'POST' });
+                const data = await response.json();
+
+                if (data.success) {
+                    currentChannelId = data.channelId;
+                    wsUrl = data.websocketUrl;
+                    broadcastUrl = data.broadcastUrl;
+
+                    // Update UI
+                    document.getElementById('channelInfo').style.display = 'block';
+                    document.getElementById('currentChannelId').textContent = currentChannelId;
+                    document.getElementById('wsUrl').textContent = wsUrl;
+                    document.getElementById('broadcastUrl').textContent = broadcastUrl;
+
+                    // Enable connect button
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('sendHttpBtn').disabled = false;
+                    document.getElementById('sendJsonBtn').disabled = false;
+
+                    addMessage(`Channel created: ${currentChannelId}`, 'system');
+                } else {
+                    addMessage('Failed to create channel', 'error');
+                }
+            } catch (error) {
+                addMessage(`Error creating channel: ${error.message}`, 'error');
+            }
+        }
+
+        function connectWebSocket() {
+            if (!wsUrl) {
+                addMessage('Please create a channel first', 'error');
+                return;
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                addMessage('Already connected', 'system');
+                return;
+            }
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                updateConnectionStatus(true);
+                addMessage('Connected to channel via WebSocket', 'system');
+            };
+
+            ws.onmessage = (event) => {
+                addMessage(`📨 ${event.data}`, 'received');
+            };
+
+            ws.onclose = () => {
+                updateConnectionStatus(false);
+                addMessage('WebSocket connection closed', 'system');
+            };
+
+            ws.onerror = (error) => {
+                addMessage(`WebSocket error: ${error}`, 'error');
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+                updateConnectionStatus(false);
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusDiv = document.getElementById('connectionStatus');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const sendWsBtn = document.getElementById('sendWsBtn');
+
+            if (connected) {
+                statusDiv.textContent = 'Connected';
+                statusDiv.className = 'status connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendWsBtn.disabled = false;
+            } else {
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.className = 'status disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                sendWsBtn.disabled = true;
+            }
+        }
+
+        function sendViaWebSocket() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addMessage('WebSocket not connected', 'error');
+                return;
+            }
+
+            const message = document.getElementById('wsMessage').value;
+            ws.send(message);
+            addMessage(`📤 Sent via WS: ${message}`, 'sent');
+        }
+
+        async function sendViaHTTP() {
+            if (!broadcastUrl) {
+                addMessage('Please create a channel first', 'error');
+                return;
+            }
+
+            const message = document.getElementById('httpMessage').value;
+
+            try {
+                const response = await fetch(broadcastUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: message
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    addMessage(`📤 Sent via HTTP: ${message} (${result.subscribers} subscribers)`, 'sent');
+                } else {
+                    addMessage(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addMessage(`Error sending via HTTP: ${error.message}`, 'error');
+            }
+        }
+
+        async function sendJSON() {
+            if (!broadcastUrl) {
+                addMessage('Please create a channel first', 'error');
+                return;
+            }
+
+            const data = {
+                type: 'test',
+                message: 'Hello from JSON!',
+                timestamp: new Date().toISOString(),
+                random: Math.floor(Math.random() * 1000)
+            };
+
+            try {
+                const response = await fetch(broadcastUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    addMessage(`📤 Sent JSON via HTTP (${result.subscribers} subscribers)`, 'sent');
+                } else {
+                    addMessage(`Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                addMessage(`Error sending JSON: ${error.message}`, 'error');
+            }
+        }
+
+        function addMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `<strong>[${timestamp}]</strong> ${escapeHtml(message)}`;
+
+            if (type === 'system') {
+                messageDiv.style.borderLeftColor = '#28a745';
+            } else if (type === 'error') {
+                messageDiv.style.borderLeftColor = '#dc3545';
+            } else if (type === 'received') {
+                messageDiv.style.borderLeftColor = '#17a2b8';
+            } else if (type === 'sent') {
+                messageDiv.style.borderLeftColor = '#ffc107';
+            }
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        // Auto-detect URL from current page
+        window.onload = () => {
+            const currentOrigin = window.location.origin;
+            // Only set if we're not on file:// protocol
+            if (!currentOrigin.startsWith('file://')) {
+                document.getElementById('apiUrlInput').value = currentOrigin;
+            } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                document.getElementById('apiUrlInput').value = 'http://localhost:8787';
+            }
+        };
+    </script>
+</body>
+</html>
