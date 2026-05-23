@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Stella - WebSocket to Claude to iMessage Pipeline
+Summer - WebSocket to Claude to iMessage Pipeline
 
-This is the main entry point for the Stella I/O system.
+This is the main entry point for the Summer I/O system.
 It creates a pipeline that:
   1. Receives messages from a WebSocket channel
   2. Processes them through Claude AI
@@ -13,22 +13,27 @@ Setup required:
   - Create "sendmessage" shortcut in macOS Shortcuts (see shortcuts-ipc/README.md)
 """
 
+import os
+
 from io_system import WebSocketTextInputProvider, ClaudeOutputBlock
 from io_system.handlers import create_imessage_handler
 
 
 def main():
-    print("=== Stella I/O System ===")
+    websocket_url = os.environ.get(
+        "SUMMER_WEBSOCKET_URL",
+        "wss://your-worker.workers.dev/channels/summer",
+    )
+
+    print("=== Summer I/O System ===")
     print("\nPipeline: WebSocket => Claude => iMessage")
-    print("\nWebSocket URL: wss://channel-api.hemeshchadalavada.workers.dev/channels/stella")
-    print("Model: claude-sonnet-4-5")
+    print(f"\nWebSocket URL: {websocket_url}")
+    print("Model: claude-sonnet-4-6")
     print("\nMessages from the WebSocket will be processed by Claude,")
     print("and Claude's responses will be sent via iMessage.\n")
 
     # Create WebSocket input provider
-    ws_provider = WebSocketTextInputProvider(
-        url="wss://channel-api.hemeshchadalavada.workers.dev/channels/stella"
-    )
+    ws_provider = WebSocketTextInputProvider(url=websocket_url)
 
     # Create iMessage output handler
     imessage_handler = create_imessage_handler()
@@ -37,8 +42,8 @@ def main():
     # persistent_context=True maintains conversation history across messages
     claude_block = ClaudeOutputBlock(
         output_handler=imessage_handler,
-        system_prompt="You are Stella, a helpful AI assistant. Keep responses concise and friendly.",
-        model="claude-sonnet-4-5",
+        system_prompt="You are Summer, a helpful AI assistant. Keep responses concise and friendly.",
+        model="claude-sonnet-4-6",
         max_tokens=1024,
         persistent_context=True  # Maintains conversation history
     )
