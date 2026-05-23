@@ -165,7 +165,7 @@ The agent ships with a `ShortcutsToolProvider` that can invoke additional shortc
 
 ## 4. Grant calendar access (one-time)
 
-`main_agentic.py` starts a background `CalendarMonitor` that uses EventKit to wake the agent when a new calendar event is added. The first time you launch, macOS will pop a permission prompt — click **Allow**.
+`main.py` starts a background `CalendarMonitor` that uses EventKit to wake the agent when a new calendar event is added. The first time you launch, macOS will pop a permission prompt — click **Allow**.
 
 You can pre-trigger the prompt without starting the whole agent:
 
@@ -190,7 +190,7 @@ cd agent/summer/tools/linux_desktop_environment
 
 The build takes 10–20 minutes the first time and produces a `claude-agent:latest` image (~5GB).
 
-If you don't want Docker at all, no action needed — `main_agentic.py` only registers `file_system` and `bash` as the base tools list, and `bash` does not require the container.
+If you don't want Docker at all, no action needed — `main.py` only registers `file_system` and `bash` as the base tools list, and `bash` does not require the container.
 
 ---
 
@@ -202,15 +202,15 @@ Two entry points:
 # A. Full proactive agent — the actual product.
 #    Wires the scheduler, context engine, EventKit monitor, semantic memory,
 #    and all the proactive/recall/memory_write/doordash tools.
-python main_agentic.py
+python main.py
 
 # B. Bare relay. Just WebSocket → Claude → iMessage, no agentic loop.
 #    Useful for sanity-checking your worker + iMessage setup before
 #    bringing the agent up.
-python main.py
+python examples/basic_relay.py
 ```
 
-On first run of `main_agentic.py` you'll see (abridged):
+On first run of `main.py` you'll see (abridged):
 
 ```
 === Summer Agentic I/O System ===
@@ -242,7 +242,7 @@ python -m io_system.context_engine facts
 
 ### 6b. Send a test message
 
-With `main_agentic.py` running:
+With `main.py` running:
 
 1. POST to your relay (or use `worker/websocket-test.html`):
    ```bash
@@ -266,7 +266,7 @@ A 30-second sanity sweep after every fresh setup:
 curl -sS "https://YOUR_WORKER.workers.dev/create_channel?id=summer" | jq
 
 # 2. Python imports clean
-python -c "import main_agentic; print('OK')"
+python -c "import main; print('OK')"
 
 # 3. Context engine round-trip (seeds + recalls)
 python -m io_system.context_engine seed
@@ -287,8 +287,8 @@ Each of these is independent — if one fails, the others can still pass and tel
 
 | Symptom                                                       | Likely cause                                                              |
 |---------------------------------------------------------------|----------------------------------------------------------------------------|
-| `main_agentic.py` exits with "ANTHROPIC_API_KEY must be set"   | `.env` missing or key not set. `cp .env.example .env` and add the key.    |
-| `ModuleNotFoundError: No module named 'summer'`                | The `agent/` directory isn't on `sys.path` because nothing imported `io_system.blocks.agentic_claude` first. Always start with `import main_agentic` or run `main_agentic.py` directly. |
+| `main.py` exits with "ANTHROPIC_API_KEY must be set"           | `.env` missing or key not set. `cp .env.example .env` and add the key.    |
+| `ModuleNotFoundError: No module named 'summer'`                | The `agent/` directory isn't on `sys.path` because nothing imported `io_system.blocks.agentic_claude` first. Always start with `import main` or run `main.py` directly. |
 | `shortcuts command not found`                                  | You're not on macOS, or `shortcuts` CLI is missing. The Shortcuts app must be installed (it's stock on macOS 13+). |
 | Shortcut runs but no iMessage delivered                        | The "Send Message" action recipient is wrong, or iMessage isn't signed in. Try sending a regular iMessage from Messages.app first. |
 | `[iMessageHandler] shortcuts command not found`                | Same as above; safe to ignore if you're testing without iMessage. Set `SUMMER_IPC_FILE` to `/dev/null` if you want to silence it entirely. |
@@ -298,7 +298,7 @@ Each of these is independent — if one fails, the others can still pass and tel
 | First `recall` is slow (~5–10s)                                | sentence-transformers is downloading the model on first use. Subsequent runs are fast. |
 | `pip install` fails on `pyobjc-framework-EventKit`             | Only happens on non-macOS. `requirements.txt` already guards it with `sys_platform == "darwin"`, but if your pip resolver ignored that, drop it from the file. |
 | `container_zsh` tool errors "Cannot connect to Docker daemon"  | Docker Desktop isn't running, or the `claude-agent:latest` image hasn't been built. See step 5. |
-| Scheduler fires but no message arrives                         | Check the agent terminal — Claude may have decided to `SKIP`. That's a feature; tighten the system prompt in `main_agentic.py:SYSTEM_PROMPT` if it's skipping too eagerly. |
+| Scheduler fires but no message arrives                         | Check the agent terminal — Claude may have decided to `SKIP`. That's a feature; tighten the system prompt in `main.py:SYSTEM_PROMPT` if it's skipping too eagerly. |
 
 ---
 
@@ -336,8 +336,8 @@ Each of these is independent — if one fails, the others can still pass and tel
 
 | Command                                                          | What it does                                                         |
 |------------------------------------------------------------------|----------------------------------------------------------------------|
-| `python main_agentic.py`                                         | Full proactive agent (the actual product)                            |
-| `python main.py`                                                 | Bare WebSocket → Claude → iMessage relay                             |
+| `python main.py`                                                 | Full proactive agent (the actual product)                            |
+| `python examples/basic_relay.py`                                 | Bare WebSocket → Claude → iMessage relay                             |
 | `python -m io_system.context_engine seed`                        | Pre-populate the semantic memory with curated demo facts             |
 | `python -m io_system.context_engine ingest --conversation-log <path>` | Run the nightly ingestion pipeline on demand                    |
 | `python -m io_system.context_engine recall "<query>"`            | Semantic search the fact store                                       |

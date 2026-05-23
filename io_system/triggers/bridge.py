@@ -2,7 +2,7 @@
 
 This module is intentionally light. It depends only on the proactive
 scheduler and the fact store, so the smoke test can exercise it without
-pulling in the heavier ``main_agentic`` runtime (anthropic, websockets,
+pulling in the heavier ``main.py`` runtime (anthropic, websockets,
 sentence-transformers, etc.).
 
 The pipeline is:

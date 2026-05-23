@@ -18,7 +18,7 @@ Threading model:
 Graceful degradation:
     If PyObjC/EventKit is not importable (e.g., running on Linux, or PyObjC
     not installed), CalendarMonitor.is_available() returns False and start()
-    is a no-op. This way main_agentic.py can wire the monitor unconditionally
+    is a no-op. This way main.py can wire the monitor unconditionally
     without breaking non-macOS environments.
 
 Permissions:

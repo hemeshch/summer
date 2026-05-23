@@ -221,7 +221,7 @@ NSNotificationCenter.defaultCenter().addObserver_selector_name_object_(
 
 ### Adding a new trigger
 
-Subclass `EventTrigger`, implement three methods, register the class in `main_agentic.py:trigger_classes`. That's it:
+Subclass `EventTrigger`, implement three methods, register the class in `main.py:trigger_classes`. That's it:
 
 ```python
 class SlackTrigger(EventTrigger):
@@ -316,7 +316,7 @@ python -m io_system.context_engine seed
 python -m io_system.context_engine recall "what does the user do at 2am"
 
 # run the full agent
-python main_agentic.py
+python main.py
 ```
 
 Full setup (Cloudflare Worker deploy, iMessage Shortcut, calendar permission) is in **[SETUP.md](./SETUP.md)**.
@@ -327,8 +327,9 @@ Full setup (Cloudflare Worker deploy, iMessage Shortcut, calendar permission) is
 
 ```
 summer/
-├── main_agentic.py             # full proactive agent, the actual product
-├── main.py                     # bare WebSocket → Claude → iMessage relay
+├── main.py                     # full proactive agent, the actual product
+├── examples/
+│   └── basic_relay.py          # bare WebSocket → Claude → iMessage relay
 ├── io_system/
 │   ├── proactive/
 │   │   └── scheduler.py        # sqlite-backed, atomic claim, daemon thread

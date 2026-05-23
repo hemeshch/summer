@@ -6,7 +6,7 @@ Exercises the wiring without touching EventKit, IMAP, or the network:
     2. Run a synthetic ``MockTrigger`` end-to-end through ``start``/``stop``,
        asserting the callback receives the event.
     3. Feed a synthetic event into the same fact_store + scheduler bridge
-       used by ``main_agentic.py`` and assert the bridge does not raise.
+       used by ``main.py`` and assert the bridge does not raise.
     4. Spot-check each real trigger's ``is_available()`` for sanity.
 
 Run from the repo root:
