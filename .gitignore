@@ -1,2 +1,68 @@
-venv/
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+
+# Virtualenvs
+venv/
+.venv/
+env/
+
+# Runtime / agent state (never commit user data)
+agent/summeragent_runtime/
+summeragent_runtime/
+**/conversation-data/
+**/agent-working-directory/
+**/agent-memory/
+**/workspace/
+tool_states.pkl
+*.pkl
+
+# Proactive scheduler sqlite file
+proactive.db
+proactive.db-journal
+proactive.db-wal
+proactive.db-shm
+
+# Context engine state
+context_facts.db
+context_facts.db-journal
+context_facts.db-wal
+context_facts.db-shm
+context_facts.state.json
+*conversation_log.jsonl
+.smoke_venv/
+
+# Node / Cloudflare Worker
+node_modules/
+.wrangler/
+dist/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

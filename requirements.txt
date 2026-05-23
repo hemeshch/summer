@@ -1,8 +1,19 @@
-# Core dependencies for the Rich I/O System
+# Core dependencies for Summer's I/O system
 
-# For ClaudeOutputBlock (LLM integration)
+# Claude API
 anthropic>=0.68.0
 python-dotenv>=1.0.0
 
-# For WebSocketTextInputProvider (WebSocket integration)
+# WebSocket relay
 websocket-client>=1.0.0
+requests>=2.31.0
+
+# Context engine — semantic memory (default backend)
+sentence-transformers>=2.5.0
+
+# Event-driven calendar wake-ups via EventKit (macOS only; harmless on other OSes).
+# CalendarMonitor degrades gracefully if this is missing.
+pyobjc-framework-EventKit>=10.0; sys_platform == "darwin"
+
+# File watcher trigger (FileWatcherTrigger). Degrades gracefully if absent.
+watchdog>=4.0.0
