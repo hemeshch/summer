@@ -33,3 +33,14 @@ INITIAL_BACKOFF_SECONDS = 0.1  # Initial backoff duration
 BACKOFF_MULTIPLIER = 2  # Exponential multiplier
 FALLBACK_RETRY_COUNT = 10  # Number of retries before switching to backup model
 # No limit to total retries - will keep retrying indefinitely
+
+
+def verify_tls() -> bool:
+    """Whether to verify TLS certificates for outbound HTTPS/WSS calls.
+
+    Defaults to True. Opt out by setting SUMMER_VERIFY_TLS to one of
+    {"0", "false", "no", "off"} (case-insensitive). Intended for local
+    development against self-signed certs only.
+    """
+    val = os.environ.get("SUMMER_VERIFY_TLS", "true").strip().lower()
+    return val not in {"0", "false", "no", "off"}

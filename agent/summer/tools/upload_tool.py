@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from ..tool_system import BaseToolSetProvider, Tool, Parameter, ParameterType
-from ..constants import FILE_UPLOAD_API_URL, BROADCAST_API_URL
+from ..constants import FILE_UPLOAD_API_URL, BROADCAST_API_URL, verify_tls
 
 
 class UploadToolProvider(BaseToolSetProvider):
@@ -125,9 +125,12 @@ class UploadToolProvider(BaseToolSetProvider):
             if not full_file_path.is_file():
                 return None, f"Error: Path is not a file: {file_path}"
 
-            # Verify the file is actually within conversation_data (security check)
+            # Verify the file is actually within conversation_data (security check).
+            # Use proper path containment rather than string-prefix matching.
             conv_data_resolved = conversation_data_link.resolve()
-            if not str(full_file_path).startswith(str(conv_data_resolved)):
+            try:
+                full_file_path.relative_to(conv_data_resolved)
+            except ValueError:
                 return None, "Error: File must be inside conversation_data folder"
 
             # Read the file for upload
@@ -138,15 +141,16 @@ class UploadToolProvider(BaseToolSetProvider):
                 with open(full_file_path, 'rb') as f:
                     files = {'file': (full_file_path.name, f, 'application/octet-stream')}
 
-                    # Disable SSL verification as in websocket_handler.py
-                    import warnings
-                    from urllib3.exceptions import InsecureRequestWarning
-                    warnings.filterwarnings('ignore', category=InsecureRequestWarning)
+                    verify = verify_tls()
+                    if not verify:
+                        import warnings
+                        from urllib3.exceptions import InsecureRequestWarning
+                        warnings.filterwarnings('ignore', category=InsecureRequestWarning)
 
                     response = requests.post(
                         self.upload_url,
                         files=files,
-                        verify=False  # Disable SSL verification for testing
+                        verify=verify
                     )
                     response.raise_for_status()
 

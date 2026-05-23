@@ -11,6 +11,7 @@ This module provides the base abstract classes for the I/O system:
 from abc import ABC, abstractmethod
 from typing import Optional, Callable
 from datetime import datetime
+import threading
 
 
 class Input(ABC):
@@ -42,14 +43,18 @@ class InputProvider(ABC):
 
     def __init__(self):
         self.output_blocks = []
+        self._output_blocks_lock = threading.Lock()
 
     def connect_output_block(self, output_block: 'OutputBlock'):
         """Connect an output block to receive inputs from this provider"""
-        self.output_blocks.append(output_block)
+        with self._output_blocks_lock:
+            self.output_blocks.append(output_block)
 
     def notify_output_blocks(self, input_obj: Input):
         """Notify all connected output blocks of a new input"""
-        for block in self.output_blocks:
+        with self._output_blocks_lock:
+            blocks = list(self.output_blocks)
+        for block in blocks:
             block.notify_input(input_obj)
 
     @abstractmethod

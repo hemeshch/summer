@@ -27,6 +27,11 @@ class Conversation:
         with self.lock:
             return self.history.copy()
 
+    def replace_history(self, new_history: List[Dict[str, Any]]):
+        """Atomically replace the conversation history."""
+        with self.lock:
+            self.history = list(new_history)
+
 
 class ConversationManager:
     """Manages multiple conversations, coordinating between agents, tools, and the server."""
@@ -160,7 +165,7 @@ class ConversationManager:
             )
 
             # Update conversation history
-            conversation.history = new_history
+            conversation.replace_history(new_history)
 
             print(f"Agent response: {response[:100]}..." if len(response) > 100 else f"Agent response: {response}")
 

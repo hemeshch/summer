@@ -8,7 +8,7 @@ import certifi
 import warnings
 from typing import Callable, Optional, Dict, Any
 from datetime import datetime
-from .constants import WEBSOCKET_SERVER_URL, BROADCAST_API_URL
+from .constants import WEBSOCKET_SERVER_URL, BROADCAST_API_URL, verify_tls
 
 
 class WebSocketHandler:
@@ -33,8 +33,13 @@ class WebSocketHandler:
     def _run(self):
         while self.should_run:
             try:
-                # Disable SSL verification for testing (not recommended for production)
-                ssl_opt = {"cert_reqs": ssl.CERT_NONE}
+                if verify_tls():
+                    ssl_opt = {
+                        "cert_reqs": ssl.CERT_REQUIRED,
+                        "ca_certs": certifi.where(),
+                    }
+                else:
+                    ssl_opt = {"cert_reqs": ssl.CERT_NONE}
 
                 self.ws = websocket.WebSocketApp(
                     self.url,
@@ -103,12 +108,12 @@ class WebSocketHandler:
         }
 
         try:
-            # Disable SSL warnings for testing
-            from urllib3.exceptions import InsecureRequestWarning
-            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
+            verify = verify_tls()
+            if not verify:
+                from urllib3.exceptions import InsecureRequestWarning
+                warnings.filterwarnings('ignore', category=InsecureRequestWarning)
 
-            # Disable SSL verification for testing (not recommended for production)
-            response = requests.post(broadcast_url, json=data, verify=False)
+            response = requests.post(broadcast_url, json=data, verify=verify)
             response.raise_for_status()
             return True
         except Exception as e:
@@ -144,12 +149,12 @@ class WebSocketHandler:
         }
 
         try:
-            # Disable SSL warnings for testing
-            from urllib3.exceptions import InsecureRequestWarning
-            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
+            verify = verify_tls()
+            if not verify:
+                from urllib3.exceptions import InsecureRequestWarning
+                warnings.filterwarnings('ignore', category=InsecureRequestWarning)
 
-            # Disable SSL verification for testing (not recommended for production)
-            response = requests.post(broadcast_url, json=data, verify=False)
+            response = requests.post(broadcast_url, json=data, verify=verify)
             response.raise_for_status()
             print(f"📡 Broadcast tool call: {tool_name}")
             return True
@@ -161,12 +166,12 @@ class WebSocketHandler:
         latest_url = f"{WEBSOCKET_SERVER_URL.replace('wss://', 'https://').replace('ws://', 'http://')}/latest"
 
         try:
-            # Disable SSL warnings for testing
-            from urllib3.exceptions import InsecureRequestWarning
-            warnings.filterwarnings('ignore', category=InsecureRequestWarning)
+            verify = verify_tls()
+            if not verify:
+                from urllib3.exceptions import InsecureRequestWarning
+                warnings.filterwarnings('ignore', category=InsecureRequestWarning)
 
-            # Disable SSL verification for testing (not recommended for production)
-            response = requests.get(latest_url, verify=False)
+            response = requests.get(latest_url, verify=verify)
             response.raise_for_status()
             return response.json()
         except Exception as e:
