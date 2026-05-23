@@ -1,10 +1,15 @@
+"""Input providers. Imported tolerantly so missing optional deps don't
+break the whole package.
 """
-Input Providers Package
 
-Import all input providers here for convenient access.
-"""
+import warnings
 
 from io_system.providers.stdin import StdinInputProvider
-from io_system.providers.websocket import WebSocketTextInputProvider
 
-__all__ = ['StdinInputProvider', 'WebSocketTextInputProvider']
+__all__ = ["StdinInputProvider"]
+
+try:
+    from io_system.providers.websocket import WebSocketTextInputProvider  # noqa: F401
+    __all__.append("WebSocketTextInputProvider")
+except ImportError as e:
+    warnings.warn(f"WebSocketTextInputProvider unavailable: {e}", ImportWarning)

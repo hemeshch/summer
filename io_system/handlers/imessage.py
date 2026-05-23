@@ -4,14 +4,28 @@ iMessage Output Handler
 Provides an output handler that sends outputs via iMessage using Apple Shortcuts.
 """
 
+import os
 import subprocess
 from pathlib import Path
 from io_system.base import Output
 from io_system.outputs import TextMessageOutput
 
 
+def _default_ipc_file() -> str:
+    """Default IPC file lives next to the repo under shortcuts-ipc/in.txt.
+
+    Override with the SUMMER_IPC_FILE environment variable when your Shortcut
+    points somewhere else.
+    """
+    env = os.environ.get("SUMMER_IPC_FILE")
+    if env:
+        return env
+    repo_root = Path(__file__).resolve().parents[2]
+    return str(repo_root / "shortcuts-ipc" / "in.txt")
+
+
 def create_imessage_handler(
-    ipc_file: str = "/Users/michel/Desktop/stella/shortcuts-ipc/in.txt",
+    ipc_file: str = None,
     shortcut_name: str = "sendmessage"
 ):
     """
@@ -31,7 +45,7 @@ def create_imessage_handler(
         handler = create_imessage_handler()
         block = IdentityOutputBlock(output_handler=handler)
     """
-    ipc_path = Path(ipc_file)
+    ipc_path = Path(ipc_file or _default_ipc_file())
     ipc_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"[iMessageHandler] Initialized")

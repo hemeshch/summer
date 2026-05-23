@@ -1,11 +1,21 @@
+"""Output blocks. Each block is imported tolerantly so a missing optional
+dependency doesn't break the entire package.
 """
-Output Blocks Package
 
-Import all output blocks here for convenient access.
-"""
+import warnings
 
 from io_system.blocks.identity import IdentityOutputBlock
-from io_system.blocks.claude import ClaudeOutputBlock
-from io_system.blocks.agentic_claude import AgenticClaudeOutputBlock
 
-__all__ = ['IdentityOutputBlock', 'ClaudeOutputBlock', 'AgenticClaudeOutputBlock']
+__all__ = ["IdentityOutputBlock"]
+
+try:
+    from io_system.blocks.claude import ClaudeOutputBlock  # noqa: F401
+    __all__.append("ClaudeOutputBlock")
+except ImportError as e:
+    warnings.warn(f"ClaudeOutputBlock unavailable: {e}", ImportWarning)
+
+try:
+    from io_system.blocks.agentic_claude import AgenticClaudeOutputBlock  # noqa: F401
+    __all__.append("AgenticClaudeOutputBlock")
+except ImportError as e:
+    warnings.warn(f"AgenticClaudeOutputBlock unavailable: {e}", ImportWarning)

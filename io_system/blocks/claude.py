@@ -31,7 +31,7 @@ class ClaudeOutputBlock(OutputBlock):
         self,
         output_handler=None,
         system_prompt: Optional[str] = None,
-        model: str = "claude-sonnet-4-5",
+        model: str = "claude-sonnet-4-6",
         max_tokens: int = 1024,
         api_key: Optional[str] = None,
         persistent_context: bool = True
@@ -42,7 +42,7 @@ class ClaudeOutputBlock(OutputBlock):
         Args:
             output_handler: Optional handler function for outputs
             system_prompt: System prompt to guide Claude's behavior
-            model: Claude model to use (default: claude-sonnet-4-5)
+            model: Claude model to use (default: claude-sonnet-4-6)
             max_tokens: Maximum tokens in response (default: 1024)
             api_key: Anthropic API key (defaults to ANTHROPIC_API_KEY env var)
             persistent_context: If True, maintain conversation history across messages (default: True)
