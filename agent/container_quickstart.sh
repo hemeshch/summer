@@ -13,7 +13,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${CYAN}============================================${NC}"
-echo -e "${GREEN}StellAgent Container Shell - Quick Start${NC}"
+echo -e "${GREEN}SummerAgent Container Shell - Quick Start${NC}"
 echo -e "${CYAN}============================================${NC}"
 echo
 
@@ -26,7 +26,7 @@ fi
 # Check if image exists
 if ! docker images | grep -q "claude-agent"; then
     echo -e "${YELLOW}Claude agent image not found. Building...${NC}"
-    cd stellagent_client/tools/linux_desktop_environment/scripts
+    cd summer/tools/linux_desktop_environment/scripts
     ./build-agent-image.sh
     cd -
 fi
@@ -46,13 +46,13 @@ read -p "Select option (1-6): " choice
 case $choice in
     1)
         echo -e "${CYAN}Starting interactive mode...${NC}"
-        python -m stellagent_client.container_shell
+        python -m summer.container_shell
         ;;
     2)
         echo -e "${CYAN}Creating/entering test container...${NC}"
         # Create a quick test container and enter it
         container_name="test-$(date +%Y%m%d-%H%M%S)"
-        stellagent-client shell $container_name
+        summer shell $container_name
         ;;
     3)
         echo -e "${CYAN}Listing containers...${NC}"
@@ -70,7 +70,7 @@ case $choice in
             fi
         fi
         python -c "
-from stellagent_client.container_shell import ContainerShell
+from summer.container_shell import ContainerShell
 shell = ContainerShell()
 shell.verify_container('$container_name')
         "
@@ -87,7 +87,7 @@ shell.verify_container('$container_name')
             fi
         fi
         python -c "
-from stellagent_client.container_shell import ContainerShell
+from summer.container_shell import ContainerShell
 shell = ContainerShell()
 shell.run_test_sequence('$container_name')
         "

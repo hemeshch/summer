@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "StellAgent Client Installation Script"
+echo "SummerAgent Client Installation Script"
 echo "================================"
 
 # Create virtual environment
@@ -13,7 +13,7 @@ echo "Installing requirements..."
 pip install -r requirements.txt
 
 # Install package in development mode
-echo "Installing stellagent-client..."
+echo "Installing summer..."
 pip install -e .
 
 # Create .env file if it doesn't exist
@@ -29,4 +29,4 @@ echo ""
 echo "To get started:"
 echo "1. Activate the virtual environment: source venv/bin/activate"
 echo "2. Set your API key in .env file"
-echo "3. Run the client: stellagent-client run"
+echo "3. Run the client: summer run"

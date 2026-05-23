@@ -1,6 +1,6 @@
 # Claude API Retry Mechanism
 
-The StellAgent client now includes automatic retry with exponential backoff for Claude API calls, with clear visual feedback when using backup models.
+The SummerAgent client now includes automatic retry with exponential backoff for Claude API calls, with clear visual feedback when using backup models.
 
 ## Features
 
@@ -17,8 +17,8 @@ The StellAgent client now includes automatic retry with exponential backoff for 
 - **Initial Backoff**: 0.1 seconds
 - **Backoff Multiplier**: 2x
 - **Fallback Retry Count**: 10 attempts
-- **Default Model**: `claude-opus-4-1-20250805`
-- **Backup Model**: `claude-sonnet-4-20250514`
+- **Default Model**: `claude-opus-4-7`
+- **Backup Model**: `claude-sonnet-4-6`
 
 ## Retry Behavior
 
@@ -39,7 +39,7 @@ The StellAgent client now includes automatic retry with exponential backoff for 
    ======================================================================
    ⚠️  SWITCHING TO BACKUP MODEL
       Primary model failed 10 times
-      Now using: claude-sonnet-4-20250514
+      Now using: claude-sonnet-4-6
       Will continue retrying indefinitely with backup model
    ======================================================================
    ```
@@ -66,13 +66,13 @@ export CLAUDE_MAX_BACKOFF=3
 export CLAUDE_INITIAL_BACKOFF=0.1
 export CLAUDE_BACKOFF_MULTIPLIER=2
 export CLAUDE_FALLBACK_RETRY_COUNT=10
-export CLAUDE_BACKUP_MODEL=claude-sonnet-4-20250514
+export CLAUDE_BACKUP_MODEL=claude-sonnet-4-6
 ```
 
 ### Programmatic Configuration
 
 ```python
-from stellagent_client.claude_agent import ClaudeAgent
+from summer.claude_agent import ClaudeAgent
 
 agent = ClaudeAgent()
 agent.configure_retry(
@@ -86,14 +86,14 @@ agent.configure_retry(
 
 ### Constants File
 
-Edit `stellagent_client/constants.py` to change defaults:
+Edit `summer/constants.py` to change defaults:
 
 ```python
 MAX_BACKOFF_SECONDS = 3
 INITIAL_BACKOFF_SECONDS = 0.1
 BACKOFF_MULTIPLIER = 2
 FALLBACK_RETRY_COUNT = 10
-BACKUP_CLAUDE_MODEL = "claude-sonnet-4-20250514"
+BACKUP_CLAUDE_MODEL = "claude-sonnet-4-6"
 ```
 
 ## Testing

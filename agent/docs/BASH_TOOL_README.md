@@ -1,4 +1,4 @@
-# Bash Tool for StellAgent Client
+# Bash Tool for SummerAgent Client
 
 The Bash tool provides Claude agents with the ability to execute bash commands in isolated, secure Docker containers. Each conversation gets its own container with lazy initialization for optimal resource usage.
 
@@ -32,7 +32,7 @@ Docker Container (Isolated Environment)
 ### 1. Build the Agent Docker Image
 
 ```bash
-cd stellagent_client/tools/linux-desktop-environment
+cd summer/tools/linux-desktop-environment
 ./build-agent.sh
 ```
 
@@ -60,15 +60,15 @@ pip install docker
 ### Basic Usage with Tool Manager
 
 ```python
-from stellagent_client.tool_system import ToolManager
-from stellagent_client.tools.bash_tool import BashToolProvider
+from summer.tool_system import ToolManager
+from summer.tools.bash_tool import BashToolProvider
 
 # Initialize tool manager
 tool_manager = ToolManager()
 
 # Create and register bash tool
 bash_provider = BashToolProvider(
-    runtime_dir="./stellagent_runtime",
+    runtime_dir="./summer_runtime",
     idle_timeout=300,  # 5 minutes
     memory_limit="2g",
     cpu_limit=2.0
@@ -89,8 +89,8 @@ print(result["output"])  # "Hello from container!"
 ### Integration with Claude Agent
 
 ```python
-from stellagent_client.claude_agent import ClaudeAgent
-from stellagent_client.tools import BashToolProvider
+from summer.claude_agent import ClaudeAgent
+from summer.tools import BashToolProvider
 
 # Create agent
 agent = ClaudeAgent()
@@ -109,7 +109,7 @@ response = agent.send_message(
 ### Direct Tool Usage
 
 ```python
-from stellagent_client.tools.bash_tool import create_bash_tool
+from summer.tools.bash_tool import create_bash_tool
 
 # Quick setup
 bash_tool = create_bash_tool()
@@ -202,7 +202,7 @@ result, error = tool_manager.call_tool(
 ### Environment Variables
 
 ```bash
-export STELLAGENT_RUNTIME_DIR=/path/to/runtime
+export SUMMER_RUNTIME_DIR=/path/to/runtime
 export BASH_TOOL_IMAGE=claude-agent:latest
 export BASH_TOOL_IDLE_TIMEOUT=300
 export BASH_TOOL_MEMORY_LIMIT=4g
@@ -216,7 +216,7 @@ Create `bash_tool_config.json`:
 
 ```json
 {
-  "runtime_dir": "./stellagent_runtime",
+  "runtime_dir": "./summer_runtime",
   "docker_image": "claude-agent:latest",
   "idle_timeout": 300,
   "memory_limit": "2g",
@@ -231,7 +231,7 @@ Create `bash_tool_config.json`:
 ### Using Configuration
 
 ```python
-from stellagent_client.tools.bash_tool_config import BashToolConfig
+from summer.tools.bash_tool_config import BashToolConfig
 
 # Load config
 config = BashToolConfig("./bash_tool_config.json")
@@ -481,7 +481,7 @@ class BashToolProvider(BaseToolSetProvider):
 
 ### Parameters
 
-- `runtime_dir`: Base directory for agent data (default: `./stellagent_runtime`)
+- `runtime_dir`: Base directory for agent data (default: `./summer_runtime`)
 - `idle_timeout`: Seconds before idle container stops (default: 300)
 - `memory_limit`: Docker memory limit (default: "2g")
 - `cpu_limit`: Docker CPU limit in cores (default: 2.0)
@@ -514,9 +514,9 @@ For issues or questions:
 
 3. Review agent working directories:
    ```bash
-   ls -la ./stellagent_runtime/agent-working-directory/
+   ls -la ./summer_runtime/agent-working-directory/
    ```
 
 ## License
 
-Part of the StellAgent Client project.
+Part of the SummerAgent Client project.

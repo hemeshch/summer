@@ -80,7 +80,7 @@ def show_zsh_capabilities():
     print("• Session dies when conversation ends")
     print("• Not for interactive programs (vim, etc.)")
 
-    print(f"\n{Fore.GREEN}✅ Ready to use in the StellAgent system!{Style.RESET_ALL}")
+    print(f"\n{Fore.GREEN}✅ Ready to use in the SummerAgent system!{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}\n")
 
 if __name__ == "__main__":

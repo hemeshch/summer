@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Example of using Anthropic's built-in tools with StellAgent Client
+Example of using Anthropic's built-in tools with SummerAgent Client
 
 This example demonstrates how to properly configure and use:
 1. Web Search (server-side tool)
@@ -20,8 +20,8 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from stellagent_client.claude_agent import ClaudeAgent
-from stellagent_client.tools.builtin import BuiltinToolsIntegration
+from summer.claude_agent import ClaudeAgent
+from summer.tools.builtin import BuiltinToolsIntegration
 
 
 def example_web_search():
@@ -166,7 +166,7 @@ def example_with_configuration():
     # Configure tools with specific settings
     tools_config = builtin_tools.get_tools_config(
         tools=['web_search', 'web_fetch'],
-        model='claude-opus-4-1-20250805',
+        model='claude-opus-4-7',
         web_search_config={
             'max_uses': 3,
             'allowed_domains': ['arxiv.org', 'github.com'],

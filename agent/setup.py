@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="stellagent-client",
+    name="summer",
     version="0.1.0",
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'stellagent-client=stellagent_client.main:cli',
+            'summer=summer.main:cli',
         ],
     },
     install_requires=[

@@ -1,16 +1,16 @@
 # Container Shell Interface
 
-A powerful interactive interface for debugging and testing StellAgent Linux containers.
+A powerful interactive interface for debugging and testing SummerAgent Linux containers.
 
 ## 🚀 Quick Start
 
 ### Instant Access
 ```bash
 # Enter interactive mode - browse and select containers
-stellagent-client container
+summer container
 
 # Quick shell access (creates container if needed)
-stellagent-client shell my-test
+summer shell my-test
 
 # Use the quick start script
 ./container_quickstart.sh
@@ -21,7 +21,7 @@ stellagent-client shell my-test
 ### 1. **Interactive Mode**
 Browse, create, and manage containers with an interactive menu:
 ```bash
-stellagent-client container
+summer container
 ```
 
 Features:
@@ -35,16 +35,16 @@ Features:
 Jump straight into a container:
 ```bash
 # Creates container if it doesn't exist
-stellagent-client shell my-session
+summer shell my-session
 
 # Or use full name
-stellagent-client shell claude-agent-my-session
+summer shell claude-agent-my-session
 ```
 
 ### 3. **Container Verification**
 Comprehensive environment checks:
 ```bash
-python -m stellagent_client.container_shell verify my-session
+python -m summer.container_shell verify my-session
 ```
 
 Checks:
@@ -60,7 +60,7 @@ Checks:
 ### 4. **Skills Inspection**
 Detailed analysis of the skills directory:
 ```bash
-python -m stellagent_client.container_shell skills my-session
+python -m summer.container_shell skills my-session
 ```
 
 Shows:
@@ -72,7 +72,7 @@ Shows:
 ### 5. **Stateful Shell Testing**
 Test that the shell maintains state:
 ```bash
-python -m stellagent_client.container_shell test my-session
+python -m summer.container_shell test my-session
 ```
 
 Tests:
@@ -87,38 +87,38 @@ Tests:
 
 | Command | Description |
 |---------|-------------|
-| `stellagent-client container` | Enter interactive mode |
-| `stellagent-client shell [name]` | Quick shell access |
+| `summer container` | Enter interactive mode |
+| `summer shell [name]` | Quick shell access |
 
 ### Python Module Commands
 
 ```bash
 # List containers
-python -m stellagent_client.container_shell list [--all]
+python -m summer.container_shell list [--all]
 
 # Create container
-python -m stellagent_client.container_shell create [conversation_id]
+python -m summer.container_shell create [conversation_id]
 
 # Enter shell
-python -m stellagent_client.container_shell shell [container_name]
+python -m summer.container_shell shell [container_name]
 
 # Execute command
-python -m stellagent_client.container_shell exec <container> <command>
+python -m summer.container_shell exec <container> <command>
 
 # Verify environment
-python -m stellagent_client.container_shell verify <container>
+python -m summer.container_shell verify <container>
 
 # Inspect skills
-python -m stellagent_client.container_shell skills <container>
+python -m summer.container_shell skills <container>
 
 # Test stateful shell
-python -m stellagent_client.container_shell test <container>
+python -m summer.container_shell test <container>
 
 # Stop container
-python -m stellagent_client.container_shell stop <container> [--force]
+python -m summer.container_shell stop <container> [--force]
 
 # Clean up all
-python -m stellagent_client.container_shell cleanup [--force]
+python -m summer.container_shell cleanup [--force]
 ```
 
 ## 🎯 Interactive Mode Features
@@ -151,7 +151,7 @@ Container: claude-agent-debug-session
 ### 1. Debug a Failed Command
 ```bash
 # Create a test container
-stellagent-client shell debug-test
+summer shell debug-test
 
 # Inside container, test commands
 cd /tmp
@@ -164,19 +164,19 @@ ls -la /mnt/skills
 ### 2. Verify Skills Are Present
 ```bash
 # Quick verification
-python -m stellagent_client.container_shell verify debug-test
+python -m summer.container_shell verify debug-test
 
 # Detailed skills inspection
-python -m stellagent_client.container_shell skills debug-test
+python -m summer.container_shell skills debug-test
 ```
 
 ### 3. Test Stateful Behavior
 ```bash
 # Run automated tests
-python -m stellagent_client.container_shell test debug-test
+python -m summer.container_shell test debug-test
 
 # Or manually test
-stellagent-client shell debug-test
+summer shell debug-test
 # Then run: cd /tmp && pwd
 # Should stay in /tmp across commands
 ```
@@ -184,7 +184,7 @@ stellagent-client shell debug-test
 ### 4. Clean Development Environment
 ```bash
 # Remove all test containers
-python -m stellagent_client.container_shell cleanup --force
+python -m summer.container_shell cleanup --force
 ```
 
 ## 🔍 Verification Output Example
@@ -242,7 +242,7 @@ Error: Cannot connect to Docker. Is Docker running?
 ```bash
 Image claude-agent:latest not found!
 # Solution: Build the image
-cd stellagent_client/tools/linux_desktop_environment/scripts
+cd summer/tools/linux_desktop_environment/scripts
 ./build-agent-image.sh
 ```
 
@@ -252,18 +252,18 @@ cd stellagent_client/tools/linux_desktop_environment/scripts
 docker logs claude-agent-my-session
 
 # Force recreate
-python -m stellagent_client.container_shell stop my-session --force
-python -m stellagent_client.container_shell create my-session
+python -m summer.container_shell stop my-session --force
+python -m summer.container_shell create my-session
 ```
 
 ### Skills Not Found
 ```bash
 # Rebuild image with skills
-cd stellagent_client/tools/linux_desktop_environment/scripts
+cd summer/tools/linux_desktop_environment/scripts
 ./build-agent-image.sh
 
 # Verify in container
-stellagent-client shell test
+summer shell test
 ls -la /mnt/skills/public
 ```
 
@@ -280,7 +280,7 @@ ls -la /mnt/skills/public
 
 The container shell complements the debug interface:
 
-1. Use debug interface (`stellagent-client debug`) for agent testing
+1. Use debug interface (`summer debug`) for agent testing
 2. Use container shell for direct container inspection
 3. Both share the same container infrastructure
 
@@ -312,7 +312,7 @@ Modify `container_shell.py` to customize:
 ### Scripting
 Use the Python API directly:
 ```python
-from stellagent_client.container_shell import ContainerShell
+from summer.container_shell import ContainerShell
 
 shell = ContainerShell()
 container_name = shell.create_container("my-test")
