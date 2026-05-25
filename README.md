@@ -1,6 +1,6 @@
 # Summer
 
-**A proactive AI agent that lives in iMessage and texts you before you even ask.**
+**A proactive multi-agent system. Agents schedule other agents to run, on a closed loop of agentic tools, semantic memory, a context engine, and a scheduler.**
 
 **November 2025.**
 
